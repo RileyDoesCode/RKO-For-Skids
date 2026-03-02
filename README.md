@@ -10,7 +10,7 @@
 
 ---
 
-## ⚠️ Legal
+## ⚠️ Legal regulations (I've already licensed this btw)
 
 **NOT allowed:**
 - Reselling
