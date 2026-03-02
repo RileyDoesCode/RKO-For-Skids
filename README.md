@@ -28,3 +28,8 @@
 ### Inject Code
 ```cpp
 CuteLatina("")
+```
+### Execute Code
+```cpp
+CuteLatina(string [script])
+```
