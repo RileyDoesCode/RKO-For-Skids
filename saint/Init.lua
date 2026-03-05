@@ -116,7 +116,7 @@ local env = getfenv(function() end)
 
 
 env.identifyexecutor = function()
-	return "RKO", "1.0.0"
+	return "RKO", "2.0.3"
 end
 env.getexecutorname = env.identifyexecutor
 
@@ -1146,12 +1146,110 @@ do
 		return { "ab" }
 	end
 
+	debug_funcs.getupvalue = function(f, index)
+		env.type_check(1, f, { "function", "number" })
+		env.type_check(2, index, { "number" })
+
+		local native = _debug.getupvalue
+		if type(native) == "function" then
+			local ok, a, b = pcall(native, f, index)
+			if ok then
+				if b ~= nil then
+					return b
+				end
+				return a
+			end
+		end
+
+		local all = debug_funcs.getupvalues(f)
+		return all[index]
+	end
+
+	debug_funcs.getupvalues = function(f)
+		env.type_check(1, f, { "function", "number" })
+
+		local nativeAll = _debug.getupvalues
+		if type(nativeAll) == "function" then
+			local ok, values = pcall(nativeAll, f)
+			if ok and type(values) == "table" then
+				return values
+			end
+		end
+
+		local nativeSingle = _debug.getupvalue
+		local out = {}
+		if type(nativeSingle) == "function" then
+			for i = 1, 64 do
+				local ok, a, b = pcall(nativeSingle, f, i)
+				if not ok then
+					break
+				end
+				local value = b
+				if value == nil then
+					value = a
+				end
+				if value == nil then
+					break
+				end
+				out[i] = value
+			end
+		end
+		return out
+	end
+
+	debug_funcs.setconstant = function(f, index, value)
+		env.type_check(1, f, { "function", "number" })
+		env.type_check(2, index, { "number" })
+
+		local native = _debug.setconstant
+		if type(native) == "function" then
+			local ok, res = pcall(native, f, index, value)
+			if ok then
+				return res
+			end
+		end
+		error("debug.setconstant is not supported in this environment", 2)
+	end
+
+	debug_funcs.setstack = function(level, index, value)
+		env.type_check(1, level, { "number" })
+		env.type_check(2, index, { "number" })
+
+		local native = _debug.setstack
+		if type(native) == "function" then
+			local ok, res = pcall(native, level, index, value)
+			if ok then
+				return res
+			end
+		end
+		error("debug.setstack is not supported in this environment", 2)
+	end
+
+	debug_funcs.setupvalue = function(f, index, value)
+		env.type_check(1, f, { "function", "number" })
+		env.type_check(2, index, { "number" })
+
+		local native = _debug.setupvalue
+		if type(native) == "function" then
+			local ok, a, b = pcall(native, f, index, value)
+			if ok then
+				return a, b
+			end
+		end
+		error("debug.setupvalue is not supported in this environment", 2)
+	end
+
 	env.debug.getinfo = debug_funcs.getinfo
 	env.debug.getconstant = debug_funcs.getconstant
 	env.debug.getconstants = debug_funcs.getconstants
 	env.debug.getproto = debug_funcs.getproto
 	env.debug.getprotos = debug_funcs.getprotos
 	env.debug.getstack = debug_funcs.getstack
+	env.debug.getupvalue = debug_funcs.getupvalue
+	env.debug.getupvalues = debug_funcs.getupvalues
+	env.debug.setconstant = debug_funcs.setconstant
+	env.debug.setstack = debug_funcs.setstack
+	env.debug.setupvalue = debug_funcs.setupvalue
 end
 
 crypt.hash = function(txt, hashName)
@@ -2456,6 +2554,50 @@ env.decompile = function(script)
 end
 env.getgenv = function()
 	return env
+end
+
+local __saint_thread_identity = env.__saint_thread_identity or 2
+
+if env.getthreadidentity == nil then
+    env.getthreadidentity = function()
+        return __saint_thread_identity
+    end
+end
+
+if env.setthreadidentity == nil then
+    env.setthreadidentity = function(identity)
+        assert(type(identity) == "number", "invalid argument #1 to 'setthreadidentity' (number expected, got " .. type(identity) .. ")", 2)
+        identity = math.floor(identity)
+        __saint_thread_identity = identity
+        env.__saint_thread_identity = identity
+        return identity
+    end
+end
+
+if env.getidentity == nil then
+    env.getidentity = function()
+        if type(env.getthreadidentity) == "function" then
+            return env.getthreadidentity()
+        end
+        return env.__saint_thread_identity or 2
+    end
+end
+
+if env.getthreadcontext == nil then
+    env.getthreadcontext = env.getidentity
+end
+
+if env.setidentity == nil then
+    env.setidentity = function(identity)
+        if type(env.setthreadidentity) == "function" then
+            return env.setthreadidentity(identity)
+        end
+        return identity
+    end
+end
+
+if env.setthreadcontext == nil then
+    env.setthreadcontext = env.setidentity
 end
 env.setclipboard = function(to_copy)
     assert(type(to_copy) == "string", "arg #1 must be type string")
