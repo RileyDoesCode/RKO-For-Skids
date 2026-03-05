@@ -14,7 +14,7 @@
 | Metric | Score |
 |--------|-------|
 | UNC | 84 |
-| sUNC | 44 |
+| sUNC | 46 |
 
 | Build | Value |
 |-------|-------|
