@@ -1,17 +1,24 @@
 <div align="center">
 
-# Project RANKALF
+# 🚀 Project RANKALF
 
-<img src="https://img.shields.io/badge/UNC-84-green">
-<img src="https://img.shields.io/badge/sUNC-46-green">
-<img src="https://img.shields.io/badge/Build-d599f7fc52a8404c-blue">
+<img src="https://img.shields.io/badge/UNC-84-brightgreen?style=for-the-badge">
+<img src="https://img.shields.io/badge/sUNC-46-brightgreen?style=for-the-badge">
+<img src="https://img.shields.io/badge/Build-d599f7fc52a8404c-blue?style=for-the-badge">
 
 </div>
+
 ---
-## Legal Status,
-# This project uses  CC BY-NC-SA 4.0, legal action will be taken.
+
+## 📜 License
+This project is licensed under **CC BY-NC-SA 4.0**.
+
+-  You may **share and modify** the project.
+-  **Commercial use is strictly prohibited.**
+-  Any violation of the license may result in **legal action**.
+
 ---
-## 📊 Status
+
 
 | Metric | Score |
 |--------|-------|
