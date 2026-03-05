@@ -2,56 +2,24 @@
 
 # Project RANKALF
 
-<img src="https://img.shields.io/badge/UNC-82-green">
-<img src="https://img.shields.io/badge/sUNC-44-orange">
-<img src="https://img.shields.io/badge/Build-760d064-blue">
+<img src="https://img.shields.io/badge/UNC-84-green">
+<img src="https://img.shields.io/badge/sUNC-46-green">
+<img src="https://img.shields.io/badge/Build-d599f7fc52a8404c-blue">
 
 </div>
 
 ---
-
-## ⚠️ Legal regulations (I've already licensed this btw)
-
-**NOT allowed:**
-- Reselling
-- Paywalling
-- Commercial redistribution
-
-**Allowed:**
-- Educational use
-- Research
-- Personal learning
-
----
-
 ## 📊 Status
 
 | Metric | Score |
 |--------|-------|
-| UNC | 82 |
+| UNC | 84 |
 | sUNC | 44 |
 
 | Build | Value |
 |-------|-------|
-| Version | `760d064d05424689` |
+| Version | `d599f7fc52a8404c` |
 | Offsets | https://dumper.jonah.cool/offsets.h |
-
----
-
-## 🤝 Contributors Wanted
-
-**Areas:**
-- Increase UNC/sUNC
-- Stability & performance
-- Detection handling
-- Features
-- Code cleanup
-- Documentation
-
-**Experience:**
-- C++
-- Reverse engineering
-- Exploit development
 
 ---
 
