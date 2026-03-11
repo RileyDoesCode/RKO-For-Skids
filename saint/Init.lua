@@ -12,6 +12,11 @@ Pointer.Name = "Pointer"
 local Bridge = Instance.new("Folder", RKO)
 Bridge.Name = "Bridge"
 
+-- Bindable used by the native side to grab thread identity/caps.
+local bindable = Instance.new("BindableEvent")
+bindable.Parent = script
+bindable.Event:Connect(function() end)
+
 local plr = ps.LocalPlayer
 
 local rtypeof = typeof
@@ -24,7 +29,7 @@ local Load = cm:FindFirstChild("CommonUtil")
 local BridgeUrl = "http://localhost:9611"
 local ProcessID = "%-PROCESS-ID-%"
 local Vernushwd = "RKO-HWID-" .. plr.UserId
-
+local metatables = {}
 local resc = 3
 local function bsend(dta, typ, set)
     local timeout = 5
@@ -958,6 +963,7 @@ env.gethui = function()
 end
 
 local crypt = {}
+local HashLib = {}
 
 crypt.base64encode = env.base64encode
 crypt.base64_encode = env.base64encode
@@ -993,19 +999,23 @@ end
 
 crypt.decrypt = crypt.encrypt
 
-local HashRes = env.request({
-	Url = "https://raw.githubusercontent.com/ChimeraLle-Real/Fynex/refs/heads/main/hash",
-	Method = "GET"
-})
-local HashLib = {}
-
-if HashRes and HashRes.Body then
-	local func, err = env.loadstring(HashRes.Body)
-	if func then
-		HashLib = func()
-	else
-		warn("HasbLib Failed To Load Error: " .. tostring(err))
-	end
+local HashRes = bsend("", "hashlib", {})
+if HashRes and HashRes ~= "" then
+    local func, err = env.loadstring(HashRes)
+    if func then
+        local ok, hash = pcall(func)
+        if ok and type(hash) == "table" then
+            HashLib = hash
+            env.HashLib = hash
+            for i, v in pairs(hash) do
+                env[i] = v
+            end
+        else
+            warn("HashLib Failed To Load Error: " .. tostring(hash))
+        end
+    else
+        warn("HashLib Failed To Load Error: " .. tostring(err))
+    end
 end
 
 local DrawingRes = bsend("", "drawinglib", {})
@@ -1895,11 +1905,11 @@ function OracleFunctions.base64.decode(data)
     end))
 end
 
-local HashLib = {}
-
-HashLib.md5 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
-HashLib.sha1 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
-HashLib.sha256 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
+if next(HashLib) == nil then
+    HashLib.md5 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
+    HashLib.sha1 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
+    HashLib.sha256 = function(text) return OracleFunctions.base64.encode(tostring(text)) end
+end
 
 function OracleFunctions.GenerateKey(len)
     local key = ''
@@ -2087,23 +2097,26 @@ env.checkcaller = function()
     local info = debug.info(env.getgenv, 'slnaf')
     return debug.info(1, 'slnaf')==info
 end
-
-env.getcallbackvalue = function(obj, name)
-	assert(typeof(obj) == "Instance", "#1 argument must be an Instance")
-	assert(typeof(name) == "string", "#2 argument must be a string")
-	return getlastlog(obj, name)
+env.getcallbackvalue = function(any, str)
+    return any[str]
 end
+local rInstance = Instance
 
 function env.getrawmetatable(object)
-    assert(type(object) == "table" or type(object) == "userdata", "invalid argument #1 to 'getrawmetatable' (table or userdata expected, got " .. type(object) .. ")", 2)
-    local raw_mt = env.debug.getmetatable(object)
-    if raw_mt and raw_mt.__metatable then
-        raw_mt.__metatable = nil 
-        local result_mt = env.debug.getmetatable(object)
-        raw_mt.__metatable = "Locked!"
-        return result_mt
-    end
-    return raw_mt
+	if metatables[object] then
+		return metatables[object]
+	end
+	local ok, mt = pcall(env.debug.getmetatable, object)
+	if ok and mt ~= nil then
+		metatables[object] = mt
+		return mt
+	end
+	mt = getmetatable(object)
+	if mt ~= nil then
+		metatables[object] = mt
+		return mt
+	end
+	return nil
 end
 
 local function CreateSignal()
@@ -2214,9 +2227,11 @@ function env.setrawmetatable(object, newmetatbl)
 		if not success then
 			error("failed to set metatable : " .. tostring(err), 2)
 		end
+		metatables[object] = newmetatbl
 		return true  
 	end
 	setmetatable(object, newmetatbl)
+	metatables[object] = newmetatbl
 	return true
 end
 
