@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <cstdio>
 #include <functional>
 #include "Bytecode.hpp"
 #include "Memory.hpp"
@@ -7,7 +8,6 @@
 #include <Wininet.h>
 #include "cppcodec/base64_rfc4648.hpp"
 #pragma comment(lib, "Wininet.lib")
-
 class Instance {
 private:
 	uintptr_t address;
@@ -19,11 +19,11 @@ public:
 	{
 	}
 
-    uintptr_t GetAddress() {
+    uintptr_t GetAddress() const {
         return address;
     }
 
-    std::string Name() {
+    std::string Name() const {
         std::uintptr_t nameaddr = ReadMemory<uintptr_t>(address + offsets::Name, ProcessID);
         const auto size = ReadMemory<size_t>(nameaddr + 0x10, ProcessID);
         if (size >= 16)
@@ -36,7 +36,24 @@ public:
         return str;
     }
 
-	Instance FindFirstChild(std::string name) {
+    Instance FindFirstChildOfClass(const std::string& className) const {
+        std::uintptr_t childrenPtr = ReadMemory<uintptr_t>(address + offsets::Children, ProcessID);
+        if (childrenPtr == 0)
+            return Instance(0, ProcessID);
+        std::uintptr_t childrenStart = ReadMemory<uintptr_t>(childrenPtr, ProcessID);
+        std::uintptr_t childrenEnd = ReadMemory<uintptr_t>(childrenPtr + offsets::ChildrenEnd, ProcessID);
+        for (std::uintptr_t childAddress = childrenStart; childAddress < childrenEnd; childAddress += 0x10) {
+            std::uintptr_t childPtr = ReadMemory<uintptr_t>(childAddress, ProcessID);
+            if (childPtr != 0) {
+                Instance child(childPtr, ProcessID);
+                if (child.ClassName() == className)
+                    return child;
+            }
+        }
+        return Instance(0, ProcessID);
+    }
+
+    Instance FindFirstChild(std::string name) {
         std::uintptr_t childrenPtr = ReadMemory<uintptr_t>(address + offsets::Children, ProcessID);
         if (childrenPtr == 0)
             return Instance(0, ProcessID);
@@ -74,7 +91,7 @@ public:
         return child;
     }
 
-    std::string ClassName() {
+    std::string ClassName() const {
         std::uintptr_t classaddr = ReadMemory<uintptr_t>(address + offsets::ClassDescriptor, ProcessID);
         std::uintptr_t nameaddr = ReadMemory<uintptr_t>(classaddr + offsets::ClassDescriptorToClassName, ProcessID);
         const auto size = ReadMemory<size_t>(nameaddr + 0x10, ProcessID);
@@ -253,6 +270,12 @@ std::string GetFileNameFromPath(const std::string& fullPath)
 
     return fullPath.substr(pos + 1);
 }
+
+// Finds the BindableEvent child created in Lua and writes identity/capabilities
+// back into the userdata extraspace. Expect a Lua snippet like:
+//   local bindable = Instance.new("BindableEvent")
+//   bindable.Parent = script
+//   bindable.Event:Connect(function() end)
 
 static bool withinDirectory(const std::filesystem::path& base, const std::filesystem::path& path) {
     std::filesystem::path baseAbs = std::filesystem::absolute(base).lexically_normal();
