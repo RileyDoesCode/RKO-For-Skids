@@ -14,6 +14,7 @@ using json = nlohmann::json;
 #include <thread>
 #include <map>
 #include <atomic>
+#include <string>
 
 #include <Windows.h>
 #include "Utils/Process.hpp"
@@ -21,6 +22,7 @@ using json = nlohmann::json;
 #include "Utils/Bytecode.hpp"
 
 extern const char g_DrawingLibUA[];
+extern const std::string g_HashLibUA;
 
 
 class SimpleWebSocket {
@@ -647,6 +649,9 @@ inline void Load() {
 
 	env["drawinglib"] = [&](std::string dta, nlohmann::json set, DWORD pid) {
 		return std::string(g_DrawingLibUA);
+		};
+	env["hashlib"] = [&](std::string dta, nlohmann::json set, DWORD pid) {
+		return std::string(g_HashLibUA);
 		};
 
 	env["appendfile"] = [&](std::string dta, nlohmann::json set, DWORD pid) {
