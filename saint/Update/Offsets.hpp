@@ -3,7 +3,7 @@
 #include <cstdint>
 
 namespace offsets {
-    const uintptr_t EnableLoadModule = 0x7B51AF8;
+    const uintptr_t EnableLoadModule = 0x0;
     inline constexpr uintptr_t Adornee = 0xD0;
     inline constexpr uintptr_t Anchored = 0x1AE;
     inline constexpr uintptr_t AnchoredMask = 0x2;
