@@ -3,7 +3,7 @@
 # 🚀 Project RANKALF
 
 <img src="https://img.shields.io/badge/UNC-84-brightgreen?style=for-the-badge">
-<img src="https://img.shields.io/badge/sUNC-40-46-brightgreen?style=for-the-badge">
+<img src="https://img.shields.io/badge/sUNC-46-brightgreen?style=for-the-badge">
 <img src="https://img.shields.io/badge/Build-d599f7fc52a8404c-blue?style=for-the-badge">
 
 </div>
