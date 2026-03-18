@@ -3,7 +3,7 @@
 # 🚀 Project RANKALF
 
 <img src="https://img.shields.io/badge/UNC-84-brightgreen?style=for-the-badge">
-<img src="https://img.shields.io/badge/sUNC-46-brightgreen?style=for-the-badge">
+<img src="https://img.shields.io/badge/sUNC-40-46-brightgreen?style=for-the-badge">
 <img src="https://img.shields.io/badge/Build-d599f7fc52a8404c-blue?style=for-the-badge">
 
 </div>
@@ -21,8 +21,8 @@ This project is licensed under **CC BY-NC-SA 4.0**.
 
 | Metric | Score |
 |--------|-------|
-| UNC | 84 |
-| sUNC | 46 |
+| UNC | 92 |
+| sUNC | 40-46 |
 
 | Build | Value |
 |-------|-------|
